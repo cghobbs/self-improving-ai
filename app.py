@@ -68,7 +68,7 @@ def improve_self():
     Path(__file__).write_text(improved_script)
     try:
         subprocess.Popen(["python", str(Path(__file__))], stdin=sys.stdin)
-        git_commit("AI Improvement: {new_idea}")
+        git_commit(f"AI Improvement: {new_idea}")
     except subprocess.CalledProcessError:
         git_commit("Revert to latest working version")
         shutil.copyfile(f"{__file__}.bak", __file__)
