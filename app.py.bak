@@ -37,7 +37,10 @@ def interpret_request(request):
     doc = nlp(request)
     command = ""
     for token in doc:
-        command += token.text + " "
+        if token.pos_ == "VERB":
+            command += token.text + " "
+        elif token.pos_ == "NOUN":
+            command += token.lemma_ + " "
     return command
 
 def execute_request(request):
