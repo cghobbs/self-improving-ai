@@ -5,6 +5,7 @@ import ast
 import shutil
 import sys
 from pathlib import Path
+import nltk
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -22,6 +23,11 @@ def reason(prompt, temperature):
     except Exception as e:
         print(f"An error occurred while querying OpenAI: {e}")
         return ""
+
+def analyze_text(text):
+    tokens = nltk.word_tokenize(text)
+    tagged = nltk.pos_tag(tokens)
+    return [word for word, pos in tagged if pos.startswith('N')]
 
 def git_commit(commit_message):
     subprocess.run(["git", "add", "."], check=True)

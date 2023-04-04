@@ -51,6 +51,7 @@ def main():
     while True:
         shutil.copyfile(__file__, f"{__file__}.bak")
         improve_self()
+        subprocess.run(["git", "push", "origin", "master"], check=True)
 
 if __name__ == "__main__":
     main()
