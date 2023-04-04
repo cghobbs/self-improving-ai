@@ -30,7 +30,7 @@ def commit_change(commit_message):
     logging.info("Committing changes to git")
     subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", commit_message], check=True)
-    subprocess.run(["git", "push", "origin", "master"], check=True)
+    subprocess.run(["git", "push"], check=True)
 
 def improve_self(idea):
     logging.info("Improving self")
@@ -49,15 +49,26 @@ def improve_self(idea):
             shutil.copyfile(f"{__file__}.bak", __file__)
         os._exit(0)
 
+def process_request(request):
+    response = reason(f"Given the following request: {request}, which of your existing functions should you use to process the request?", 0)
+    if response == "":
+        logging.error("No response received from OpenAI")
+        return
+    logging.info(f"Received response from OpenAI: {response}")
+    try:
+        eval(response)(request)
+    except Exception as e:
+        logging.error(f"An error occurred while processing the request: {e}")
+
 def main():
     logging.info("Starting main loop")
     while True:
         try:
-            request = input("How can I improve?\n")
+            request = input("How can I help?\n")
         except EOFError:
             logging.info("Encountered EOF. Exiting...")
             break
-        improve_self(request)
+        process_request(request)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
