@@ -56,7 +56,7 @@ def improve_self(idea):
         Path(__file__).write_text(improved_script)
         try:
             commit_change("Automatic commit from self-improving script")
-            subprocess.Popen(["python", str(Path(__file__))], stdin=sys.stdin)
+            subprocess.Popen(["python", "-i", str(Path(__file__))], stdin=sys.stdin)
         except subprocess.CalledProcessError:
             shutil.copyfile(f"{__file__}.bak", __file__)
         os._exit(0)
