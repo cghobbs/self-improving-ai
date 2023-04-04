@@ -9,6 +9,8 @@ import sys
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
+reminders = []
+
 def reason(prompt, temperature=0.5, n=1, max_tokens=2000, stop=None):
     try:
         logging.info("Querying OpenAI for response")
@@ -32,6 +34,9 @@ def commit_change(commit_message):
     subprocess.run(["git", "commit", "-m", commit_message], check=True)
     subprocess.run(["git", "push"], check=True)
 
+def add_reminder(reminder):
+    reminders.append(reminder)
+
 def improve_self(idea):
     logging.info("Improving self")
     current_script = Path(__file__).read_text()
@@ -49,26 +54,17 @@ def improve_self(idea):
             shutil.copyfile(f"{__file__}.bak", __file__)
         os._exit(0)
 
-def process_request(request):
-    response = reason(f"Given the following request: {request}, which of your existing functions should you use to process the request?", 0)
-    if response == "":
-        logging.error("No response received from OpenAI")
-        return
-    logging.info(f"Received response from OpenAI: {response}")
-    try:
-        eval(response)(request)
-    except Exception as e:
-        logging.error(f"An error occurred while processing the request: {e}")
-
 def main():
     logging.info("Starting main loop")
     while True:
         try:
             request = input("How can I help?\n")
+            if request.startswith("remind me"):
+                add_reminder(request[10:])
         except EOFError:
             logging.info("Encountered EOF. Exiting...")
             break
-        process_request(request)
+        improve_self(request)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
