@@ -72,6 +72,9 @@ def main():
         except EOFError:
             logging.info("Encountered EOF. Exiting...")
             break
+        except KeyboardInterrupt:
+            logging.info("Encountered KeyboardInterrupt. Exiting...")
+            break
         improve_self(request)
 
 if __name__ == "__main__":
