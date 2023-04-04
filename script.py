@@ -29,11 +29,10 @@ def reason(prompt, temperature=0.5, n=1, max_tokens=2000, stop=None):
         logging.error(f"An error occurred while querying OpenAI: {e}")
         return ""
 
-def commit_change(commit_message):
-    logging.info("Committing changes to git")
-    subprocess.run(["git", "add", "."], check=True)
-    subprocess.run(["git", "commit", "-m", commit_message], check=True)
-    subprocess.run(["git", "push"], check=True)
+def log_change(commit_message):
+    logging.info("Logging changes to text file")
+    with open('log.txt', 'a') as f:
+        f.write(commit_message + '\n')
 
 def add_reminder(reminder):
     reminders.append(reminder)
@@ -55,7 +54,7 @@ def improve_self(idea):
     if confirm == "y":
         Path(__file__).write_text(improved_script)
         try:
-            commit_change("Automatic commit from self-improving script")
+            log_change("Automatic commit from self-improving script")
             subprocess.Popen(["python", "-i", str(Path(__file__))], stdin=sys.stdin)
         except subprocess.CalledProcessError:
             shutil.copyfile(f"{__file__}.bak", __file__)
