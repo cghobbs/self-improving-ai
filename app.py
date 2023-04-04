@@ -38,6 +38,19 @@ def interpret_request(request):
         command += token + " "
     return command
 
+def execute_request(request):
+    command = interpret_request(request)
+    subprocess.run(command, check=True)
+
+def respond_to_request(request):
+    # TODO: Implement natural language processing to interpret the request
+    # and generate an appropriate response
+    tokens = nltk.word_tokenize(request)
+    response = ""
+    for token in tokens:
+        response += token + " "
+    return response
+
 def git_commit(commit_message):
     subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", commit_message], check=True)
@@ -68,27 +81,12 @@ def main():
         improve_self()
         subprocess.run(["git", "push", "origin", "master"], check=True)
     
-def interpret_request(request):
-    # TODO: Implement natural language processing to interpret the request
-    # and extract the command to execute
-    tokens = nltk.word_tokenize(request)
-    command = ""
-    for token in tokens:
-        command += token + " "
-    return command
-
-def execute_request(request):
-    command = interpret_request(request)
-    subprocess.run(command, check=True)
-
-def respond_to_request(request):
-    # TODO: Implement natural language processing to interpret the request
-    # and generate an appropriate response
-    tokens = nltk.word_tokenize(request)
-    response = ""
-    for token in tokens:
-        response += token + " "
-    return response
+    while True:
+        request = input("What can I do for you?\n")
+        command = interpret_request(request)
+        execute_request(command)
+        response = respond_to_request(request)
+        print(response)
 
 if __name__ == "__main__":
     main()
