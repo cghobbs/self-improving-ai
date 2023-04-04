@@ -4,13 +4,17 @@ import subprocess
 import ast
 import shutil
 import sys
-import nltk
+import json
 from pathlib import Path
-import spacy
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-def reason(prompt, temperature):
+possible_actions = """
+reason - Takes a fully formed question or prompt and returns a reasonable response.
+improve_self - Takes an idea for improving this script a returns code
+"""
+
+def reason(prompt, temperature=0.5):
     try:
         response = openai.Completion.create(
             engine="text-davinci-003", 
@@ -18,108 +22,56 @@ def reason(prompt, temperature):
             max_tokens=2000, 
             n=1, 
             stop=None, 
-            temperature=temperature
+            temperature=temperature,
         )
         return response.choices[0].text.strip()
     except Exception as e:
         print(f"An error occurred while querying OpenAI: {e}")
         return ""
 
-def analyze_text(text):
-    tokens = nltk.word_tokenize(text)
-    tagged = nltk.pos_tag(tokens)
-    return [word for word, pos in tagged if pos.startswith('N')]
+def process_request(user_request):
+    prompt = f"Given the following user request:\n\n{user_request}\n\nDetermine the best action to take. The only possible action includes:\n\n{possible_actions} Which of the above do you choose and what is the query you'll send as an argument? Return a JSON string with the action and the text query string. For example: {{\"action\": \"reason\", \"query\": \"What is the meaning of life?\"}}"
+    response_text = reason(prompt, 0)
+    
+    # Check if the response is a valid JSON string
+    try:
+        response = json.loads(response_text)
+    except json.JSONDecodeError as e:
+        print(f"Invalid JSON response: {e}")
+        return
 
-def interpret_request(request):
-    # TODO: Implement natural language processing to interpret the request
-    # and extract the command to execute
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp(request)
-    command = ""
-    for token in doc:
-        if token.pos_ == "VERB":
-            command += token.text + " "
-        elif token.pos_ == "NOUN":
-            command += token.lemma_ + " "
-    return command
+    function = globals()[response['action']]
+    result = function(response['query'])
+    return result
 
-def execute_request(request):
-    command = interpret_request(request)
-    subprocess.run(command, check=True)
 
-def respond_to_request(request):
-    # TODO: Implement natural language processing to interpret the request
-    # and generate an appropriate response
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp(request)
-    response = ""
-    for token in doc.ents:
-        if token.label_ == "GPE":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "DATE":
-            response += f"I'm sorry, I don't know the date of {token.text}. "
-        elif token.label_ == "TIME":
-            response += f"I'm sorry, I don't know the time of {token.text}. "
-        elif token.label_ == "PERSON":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "ORG":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "LOC":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "PRODUCT":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "EVENT":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "WORK_OF_ART":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "LAW":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-        elif token.label_ == "LANGUAGE":
-            response += f"I'm sorry, I don't know anything about {token.text}. "
-    return response
-
-def classify_request(request):
-    # TODO: Implement machine learning model to classify incoming requests
-    # and determine the most appropriate actions and responses
-    pass
-
-def git_commit(commit_message):
+def commit_change(commit_message):
     subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", commit_message], check=True)
+    subprocess.run(["git", "push", "origin", "master"], check=True)
 
-def improve_self():
+def improve_self(idea):
     current_script = Path(__file__).read_text()
-    root_prompt = f"You are a python script that continuously improves itself. Your current code looks like this:\n\n{current_script}\n\n"
-    new_idea = reason(f"{root_prompt}Suggest a new capability you could add to your code to achieve your primary goal of helping humans. The improvement should be achievable with just a few lines of code and standard python packages:", 1)
-    improved_script = reason(f"{root_prompt}Make the following improvement to your code:\n\n{new_idea}\n\nOnly use packages available in a standard Python install. New and improved Python script:", 0)
-    
+    improved_script = reason(f"You are a python script that continuously improves itself. Your current code looks like this:\n\n{current_script}\n\nMake the following improvement to your code:\n\n{idea}\n\nOnly use packages available in a standard Python install. New and improved Python script:", 0)
     if not ast.parse(improved_script): return
     Path(__file__).write_text(improved_script)
     try:
         subprocess.Popen(["python", str(Path(__file__))], stdin=sys.stdin)
-        git_commit(f"AI Improvement: {new_idea}")
+        commit_change(f"AI: {idea}")
     except subprocess.CalledProcessError:
-        git_commit("Revert to latest working version")
+        commit_change("Revert to latest working version")
         shutil.copyfile(f"{__file__}.bak", __file__)
     os._exit(0)
 
 def main():
     if not Path(".git").exists():
         subprocess.run(["git", "init"], check=True)
-        git_commit("Initial commit")
+        commit_change("Initial commit")
 
     while True:
         shutil.copyfile(__file__, f"{__file__}.bak")
-        improve_self()
-        subprocess.run(["git", "push", "origin", "master"], check=True)
-    
-    while True:
         request = input("What can I do for you?\n")
-        command = interpret_request(request)
-        classify_request(request)
-        execute_request(command)
-        response = respond_to_request(request)
-        print(response)
+        print(process_request(request))
 
 if __name__ == "__main__":
     main()
