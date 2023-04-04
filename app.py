@@ -31,7 +31,12 @@ def analyze_text(text):
 
 def interpret_request(request):
     # TODO: Implement natural language processing to interpret the request
-    pass
+    # and extract the command to execute
+    tokens = nltk.word_tokenize(request)
+    command = ""
+    for token in tokens:
+        command += token + " "
+    return command
 
 def git_commit(commit_message):
     subprocess.run(["git", "add", "."], check=True)
@@ -62,6 +67,15 @@ def main():
         shutil.copyfile(__file__, f"{__file__}.bak")
         improve_self()
         subprocess.run(["git", "push", "origin", "master"], check=True)
+    
+def interpret_request(request):
+    # TODO: Implement natural language processing to interpret the request
+    # and extract the command to execute
+    tokens = nltk.word_tokenize(request)
+    command = ""
+    for token in tokens:
+        command += token + " "
+    return command
 
 def execute_request(request):
     command = interpret_request(request)
@@ -70,7 +84,11 @@ def execute_request(request):
 def respond_to_request(request):
     # TODO: Implement natural language processing to interpret the request
     # and generate an appropriate response
-    pass
+    tokens = nltk.word_tokenize(request)
+    response = ""
+    for token in tokens:
+        response += token + " "
+    return response
 
 if __name__ == "__main__":
     main()
