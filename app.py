@@ -53,8 +53,29 @@ def respond_to_request(request):
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(request)
     response = ""
-    for token in doc:
-        response += token.text + " "
+    for token in doc.ents:
+        if token.label_ == "GPE":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "DATE":
+            response += f"I'm sorry, I don't know the date of {token.text}. "
+        elif token.label_ == "TIME":
+            response += f"I'm sorry, I don't know the time of {token.text}. "
+        elif token.label_ == "PERSON":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "ORG":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "LOC":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "PRODUCT":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "EVENT":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "WORK_OF_ART":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "LAW":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
+        elif token.label_ == "LANGUAGE":
+            response += f"I'm sorry, I don't know anything about {token.text}. "
     return response
 
 def git_commit(commit_message):
