@@ -6,6 +6,7 @@ import shutil
 import sys
 import nltk
 from pathlib import Path
+import spacy
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -32,10 +33,11 @@ def analyze_text(text):
 def interpret_request(request):
     # TODO: Implement natural language processing to interpret the request
     # and extract the command to execute
-    tokens = nltk.word_tokenize(request)
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(request)
     command = ""
-    for token in tokens:
-        command += token + " "
+    for token in doc:
+        command += token.text + " "
     return command
 
 def execute_request(request):
@@ -45,10 +47,11 @@ def execute_request(request):
 def respond_to_request(request):
     # TODO: Implement natural language processing to interpret the request
     # and generate an appropriate response
-    tokens = nltk.word_tokenize(request)
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(request)
     response = ""
-    for token in tokens:
-        response += token + " "
+    for token in doc:
+        response += token.text + " "
     return response
 
 def git_commit(commit_message):
@@ -65,7 +68,7 @@ def improve_self():
     Path(__file__).write_text(improved_script)
     try:
         subprocess.Popen(["python", str(Path(__file__))], stdin=sys.stdin)
-        git_commit("AI Improvement: {new_idea}")
+        git_commit(f"AI Improvement: {new_idea}")
     except subprocess.CalledProcessError:
         git_commit("Revert to latest working version")
         shutil.copyfile(f"{__file__}.bak", __file__)
