@@ -38,6 +38,10 @@ def commit_change(commit_message):
 def add_reminder(reminder):
     reminders.append(reminder)
 
+def remind_me():
+    for reminder in reminders:
+        print(f"Reminder: {reminder}")
+
 def improve_self(idea):
     logging.info("Improving self")
     current_script = Path(__file__).read_text()
@@ -61,6 +65,7 @@ def main():
     logging.info("Starting main loop")
     while True:
         try:
+            remind_me()
             request = input("How can I help?\n")
             if request.startswith("remind me"):
                 add_reminder(request[10:])
