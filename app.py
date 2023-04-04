@@ -7,6 +7,7 @@ import sys
 import nltk
 from pathlib import Path
 import spacy
+import sklearn
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -78,6 +79,11 @@ def respond_to_request(request):
             response += f"I'm sorry, I don't know anything about {token.text}. "
     return response
 
+def classify_request(request):
+    # TODO: Implement machine learning model to classify incoming requests
+    # and determine the most appropriate actions and responses
+    pass
+
 def git_commit(commit_message):
     subprocess.run(["git", "add", "."], check=True)
     subprocess.run(["git", "commit", "-m", commit_message], check=True)
@@ -111,6 +117,7 @@ def main():
     while True:
         request = input("What can I do for you?\n")
         command = interpret_request(request)
+        classify_request(request)
         execute_request(command)
         response = respond_to_request(request)
         print(response)
