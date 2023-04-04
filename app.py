@@ -82,7 +82,13 @@ def respond_to_request(request):
 def classify_request(request):
     # TODO: Implement machine learning model to classify incoming requests
     # and determine the most appropriate actions and responses
-    pass
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(request)
+    tokens = [token.text for token in doc]
+    X = [analyze_text(request)]
+    model = sklearn.svm.SVC()
+    model.fit(X, tokens)
+    return model.predict(X)
 
 def git_commit(commit_message):
     subprocess.run(["git", "add", "."], check=True)
@@ -117,9 +123,9 @@ def main():
     while True:
         request = input("What can I do for you?\n")
         command = interpret_request(request)
-        classify_request(request)
+        classified_request = classify_request(request)
         execute_request(command)
-        response = respond_to_request(request)
+        response = respond_to_request(classified_request)
         print(response)
 
 if __name__ == "__main__":
