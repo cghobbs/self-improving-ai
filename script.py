@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import shutil
 import sys
+import difflib
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -42,8 +43,10 @@ def improve_self(idea):
     current_script = Path(__file__).read_text()
     improved_script = reason(f"You are a python script that continuously improves itself. Your current code looks like this:\n\n{current_script}\n\nMake the following improvement to your code:\n\n{idea}\n\n New and improved Python script:", 0)
     if not ast.parse(improved_script): return
+    diff = difflib.unified_diff(current_script.splitlines(), improved_script.splitlines())
     print("Here are the changes I am about to make:")
-    print(improved_script)
+    for line in diff:
+        print(line)
     confirm = input("Do you want to save these changes? (y/n)")
     if confirm == "y":
         Path(__file__).write_text(improved_script)
