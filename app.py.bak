@@ -6,6 +6,7 @@ import shutil
 import sys
 import json
 from pathlib import Path
+import time
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -41,7 +42,10 @@ def process_request(user_request):
         return
 
     function = globals()[response['action']]
+    start_time = time.time()
     result = function(response['query'])
+    end_time = time.time()
+    print(f"Processing time: {end_time - start_time} seconds")
     return result
 
 
@@ -70,8 +74,11 @@ def main():
 
     while True:
         shutil.copyfile(__file__, f"{__file__}.bak")
+        start_time = time.time()
         request = input("What can I do for you?\n")
         print(process_request(request))
+        end_time = time.time()
+        print(f"Total processing time: {end_time - start_time} seconds")
 
 if __name__ == "__main__":
     main()

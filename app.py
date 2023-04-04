@@ -7,6 +7,7 @@ import sys
 import json
 from pathlib import Path
 import time
+import multiprocessing
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -43,7 +44,11 @@ def process_request(user_request):
 
     function = globals()[response['action']]
     start_time = time.time()
-    result = function(response['query'])
+    pool = multiprocessing.Pool()
+    result = pool.apply_async(function, (response['query'],))
+    pool.close()
+    pool.join()
+    result = result.get()
     end_time = time.time()
     print(f"Processing time: {end_time - start_time} seconds")
     return result
