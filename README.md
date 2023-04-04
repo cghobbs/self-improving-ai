@@ -6,11 +6,11 @@ A self-improving AI script using OpenAI as the reasoning model.
 
 To set the OPENAI_API_KEY environment variable, follow the instructions for your operating system:
 
-Windows:
+**Windows:**
 
 Open the Start menu, search for "Environment Variables," and click on "Edit the system environment variables." In the "System Properties" window that opens, click on "Environment Variables." Under "System variables," click "New" and enter the variable name as OPENAI_API_KEY and the value as your OpenAI API key. Click "OK" to save the changes.
 
-macOS or Linux:
+**macOS or Linux:**
 
 Open a terminal and add the following line to your shell profile file (usually ~/.bashrc, ~/.bash_profile, or ~/.zshrc):
 
